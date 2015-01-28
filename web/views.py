@@ -27,7 +27,16 @@ def sort(request, sort_by):
         nbs = Notebook.objects.order_by('-hits_total')[0:nb_per_page]
         context['views_active'] = 'active'
     elif sort_by == 'date':
-        nbs = Notebook.objects.order_by('-accessed_date')[0:nb_per_page]
+        tmp = Notebook.objects.order_by('-accessed_date')[0:nb_per_page]
+        dates = list(set(tmp.values_list('accessed_date', flat=True)))
+        dates.sort()
+        nbs = []
+        for d in dates:
+            tmp_nbs = []
+            for o in tmp:
+                if o.accessed_date == d:
+                    tmp_nbs.append(o)
+            nbs.append([d, tmp_nbs])
         context['date_active'] = 'active'
     elif sort_by == 'random':
          nbs = Notebook.objects.order_by('?')[0:nb_per_page]
@@ -39,15 +48,28 @@ def sort(request, sort_by):
 
 def page(request, sort_by, obj_id):
     i = int(obj_id) - 1
+    more_pages = False
     if sort_by == 'views':
         nbs = Notebook.objects.order_by('-hits_total')[nb_per_page * i:nb_per_page * (i+1)]
+        more_pages = (len(nbs) == nb_per_page)
     elif sort_by == 'date':
-        nbs = Notebook.objects.order_by('-accessed_date')[nb_per_page * i:nb_per_page * (i+1)]
+        tmp = Notebook.objects.order_by('-accessed_date')[nb_per_page * i:nb_per_page * (i+1)]
+        dates = list(set(tmp.values_list('accessed_date', flat=True)))
+        dates.sort()
+        nbs = []
+        for d in dates:
+            tmp_nbs = []
+            for o in tmp:
+                if o.accessed_date == d:
+                    tmp_nbs.append(o)
+            nbs.append([d, tmp_nbs])
+        more_pages = (len(nbs) == nb_per_page)
     elif sort_by == 'random':
         nbs = Notebook.objects.order_by('?')[nb_per_page * i:nb_per_page * (i+1)]
+        more_pages = (len(nbs) == nb_per_page)
     else:
         raise NotImplementedError
-    more_pages = (len(nbs) == nb_per_page)
+    
     context = {'nbs': nbs, 'next_page': int(obj_id)+1, 'more_pages' : more_pages, 'sort_by': sort_by}
     return render(request, 'web/page.html', context)
 

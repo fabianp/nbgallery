@@ -1,14 +1,39 @@
 
-  <div id="nbcontainer" class="container nbcontainer center-block">
-  {% for nb in nbs %}
-  <div class="thumbitem thumbnail">
-    <a href="/redirect/{{nb.id}}" target="_blank">
-      <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
-    </a>
-    <h4>{{nb.title}}</h4>
-    <p>{{nb.description}}</p>
-  </div>
-  {% endfor %}
+  {% if sort_by == 'views' %}
+    <div id="nbcontainer" class="container nbcontainer center-block">
+    {% for nb in nbs %}
+    <div class="thumbitem thumbnail">
+      <a href="/redirect/{{nb.id}}" target="_blank">
+        <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
+      </a>
+      <h4>{{nb.title}}</h4>
+      <p>{{nb.description}}</p>
+    </div>
+    {% endfor %}
+    </div> <!-- /nbcontainer -->
+
+  {% elif sort_by == 'date'%} 
+
+    {% for date, d_nbs in nbs %}
+    <h3 class="center-block">{{date}}</h3>
+    <div id="nbcontainer" class="container nbcontainer center-block">
+    {% for nb in d_nbs %}
+    <div class="thumbitem thumbnail">
+      <a href="/redirect/{{nb.id}}" target="_blank">
+        <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
+      </a>
+      <h4>{{nb.title}}</h4>
+      <p>{{nb.description}}</p>
+    </div>
+    {% endfor %}
+    </div> <!-- /nbcontainer -->
+    {% endfor %}
+
+
+  {% endif %}
+
+
+
 
   {% if more_pages %}
   <nav class="thumbitem paging">
@@ -19,8 +44,3 @@
         <h3>There are no more items</h3>
   </nav>
   {% endif %}
-  </div>
-
-
-
-
