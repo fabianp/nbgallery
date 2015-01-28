@@ -1,0 +1,9 @@
+{% extends "web/base.html" %}
+
+
+{% block content %}
+
+Thanks for submitting the notebook "{{nb.title}}"
+<a class="thumbnail" href="/redirect/{{nb.id}}" ><img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/></a>
+
+{% endblock %}

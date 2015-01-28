@@ -1,0 +1,86 @@
+{% extends "web/base.html" %}
+
+{% block content %}
+
+
+    <div class="container">
+      <div class="starter-template">
+        <h1>Notebook Gallery</h1>
+        <p class="lead">Links to the best IPython and Jupyter Notebooks.</p>
+      </div>
+    </div><!-- /.container -->
+
+    <div id="loading" class="container">
+      <p>Loading web page ...</p>
+      <img src="/static/img/ajax-loader.gif" />
+    </div>
+
+
+    <div class="container nbcontainer center-block">
+    {% for nb in nbs %}
+    <div class="thumbitem thumbnail">
+      <a href="/redirect/{{nb.id}}" target="_blank">
+        <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
+      </a>
+      <h4>{{nb.title}}</h4>
+      <p>{{nb.description}}</p>
+    </div>
+    {% endfor %}
+    </div>
+
+    <nav class="paging">
+        <a href="/sort/{{sort_by}}/2/" class="next">Load Next Items</a>
+    </nav>
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+  <script>
+  $(function(){
+
+    var first_time = true;
+    var $container = $('.nbcontainer');
+    // initialize Masonry after all images have loaded
+    $container.imagesLoaded( function() {
+      $container.masonry({
+        itemSelector: '.thumbitem', 
+        columnWidth: 10});
+      if (first_time) { // only do this once
+        $container.fadeTo(3, 1); 
+        $('#loading').hide();
+        first_time = false;
+      };
+    });
+
+    $container.infinitescroll({
+      navSelector  : '.paging',    // selector for the paged navigation
+      nextSelector : '.paging a.next',  // selector for the NEXT link (to page 2)
+      itemSelector : '.thumbitem',     // selector for all items you'll retrieve
+      debug : true,
+      bufferPx     : 0,
+      loading: {
+          finishedMsg: 'No more pages to load.',
+          img: 'http://i.imgur.com/6RMhx.gif',
+        }
+      },
+      // trigger Masonry as a callback
+      function( newElements ) {
+        // hide new items while they are loading
+        var $newElems = $( newElements ).css({ opacity: 0 });
+        // ensure that images load before adding to masonry layout
+        $newElems.imagesLoaded(function(){
+          // show elems now they're ready
+          $newElems.animate({ opacity: 1 });
+          $container.masonry( 'appended', $newElems, true ); 
+        });
+      }
+    );
+    
+  });
+  </script>
+
+
+{% endblock %}

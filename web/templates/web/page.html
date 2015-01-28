@@ -1,0 +1,26 @@
+
+  <div id="nbcontainer" class="container nbcontainer center-block">
+  {% for nb in nbs %}
+  <div class="thumbitem thumbnail">
+    <a href="/redirect/{{nb.id}}" target="_blank">
+      <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
+    </a>
+    <h4>{{nb.title}}</h4>
+    <p>{{nb.description}}</p>
+  </div>
+  {% endfor %}
+
+  {% if more_pages %}
+  <nav class="thumbitem paging">
+        <a href="/sort/{{sort_by}}/{{next_page}}/" class="next">Load Next Items</a>
+  </nav>
+  {% else %}
+  <nav class="thumbitem paging">
+        <h3>There are no more items</h3>
+  </nav>
+  {% endif %}
+  </div>
+
+
+
+
