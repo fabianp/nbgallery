@@ -8,7 +8,7 @@ class Notebook(models.Model):
     """
     title = models.CharField(max_length=500)
     text_hash = models.CharField(max_length=100)
-    accessed_date = models.DateField(auto_now=True)
+    accessed_date = models.DateField(auto_now_add=True)
     thumb_img = models.URLField()
     url = models.URLField()
     html_url = models.URLField()

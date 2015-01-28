@@ -32,8 +32,10 @@
   {% elif sort_by == 'date'%} 
 
     {% for date, d_nbs in nbs %}
-    <h3  style="text-align: center">{{date}}</h3>
     <div id="nbcontainer" class="container nbcontainer center-block">
+    <div class="thumbitem thumbnail alert alert-info" role="alert">
+      <h2 style="font-weight: bold; height: 100px; margin-top: 100px">{{date}}</h2>
+    </div>
     {% for nb in d_nbs %}
     <div class="thumbitem thumbnail">
       <a href="/redirect/{{nb.id}}" target="_blank">
@@ -45,7 +47,6 @@
     {% endfor %}
     </div> <!-- /nbcontainer -->
     {% endfor %}
-
 
   {% endif %}
 

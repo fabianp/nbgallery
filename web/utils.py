@@ -98,28 +98,27 @@ def insert_notebook(url, screenshot=True):
 
 def make_screenshots(url, fname):
     SCREENSHOT_CODE = """
-var webshot = require('webshot');
+var page = require('webpage').create();
+page.viewportSize = {
+  width: 800,
+  height: 800
+};
+page.clipRect = {
+  top: 0,
+  left: 30,
+  width: 800,
+  height: 800
+};
 
-var options = {
-  screenSize: {
-    width: 1000
-  , height: 1000
-  }
-, shotOffset : { left: 50
-    , right: 50
-    , top: 50
-    , bottom: 0 }
-, renderDelay : 1000
-, errorIfStatusIsNot200 : true
-, customCSS: '#menubar { visibility: hidden} #container { padding-top: -40px}'
-}
-
-
-webshot('%s', '%s', options, function(err) {
-  // screenshot now saved
+page.open('%s', function() {
+    page.evaluate(function() { 
+        $('.navbar').remove();
+        $('.breadcrumb').remove()
+    });
+    page.render('%s');
+    phantom.exit();
 });
 """
-
 
     thumb_dir = os.path.join(settings.BASE_DIR, 'static', 'thumb_nb')
     assert os.path.exists(thumb_dir)
@@ -131,7 +130,7 @@ webshot('%s', '%s', options, function(err) {
         jsfile = os.path.join(settings.BASE_DIR, 'screenshot.js')
         with open(jsfile, 'w+') as f:
             f.write(CODE)
-        out = subprocess.check_call('nodejs %s' % jsfile, shell=True)
+        out = subprocess.check_call('phantomjs %s' % jsfile, shell=True)
         if out != 0:
             raise ValueError
         print('Screenshot done')
