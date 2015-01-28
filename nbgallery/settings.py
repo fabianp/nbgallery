@@ -12,13 +12,12 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-
 DEBUG = False
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = []
 
-from privatesettings import *
+privsettings = os.path.join(os.path.dirname(__file__), 'privatesettings.py')
+execfile(privsettings)
 
 # Application definition
 
