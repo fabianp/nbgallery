@@ -89,7 +89,7 @@ def submit(request):
                 raise Exception
 
             # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/%s/' % nb.pk)
+            return HttpResponseRedirect('/thanks/%s/' % nb['link'])
 
     # if a GET (or any other method) we'll create a blank form
     else:

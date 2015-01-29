@@ -100,59 +100,8 @@ def insert_notebook(url, screenshot=True):
 
 
 def make_screenshots(url, fname):
-    SCREENSHOT_CODE = """
-function renderPage(url) {
-var page = require('webpage').create();
-var redirectURL = null;
- 
-page.onResourceReceived = function(resource) {
-    if (url == resource.url && resource.redirectURL) {
-      redirectURL = resource.redirectURL;
-    }
-  };
-
-page.viewportSize = {
-  width: 800,
-  height: 800
-};
-page.clipRect = {
-  top: 0,
-  left: 30,
-  width: 800,
-  height: 800
-};
-page.settings.resourceTimeout = 5000; // 5 seconds
-
-page.onResourceError = function(resourceError) {
-    page.reason = resourceError.errorString;
-    page.reason_url = resourceError.url;
-};
-
-page.open(url, function(status) {
-  if (redirectURL) {
-    console.log('redirecting');
-    renderPage(redirectURL);
-  } else if (status == 'success') {
-
-    page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function() {
-      page.evaluate(function() { 
-        $('.navbar').remove();
-        $('.breadcrumb').remove();
-        page.render('%s');
-      });
-    });
-    phantom.exit();
-  } else {
-    // do something
-    console.log(status);
-    console.log(page.reason)
-    phantom.exit();
-  }
-});
-}
-
-renderPage('%s');
-"""
+    screenshot_js = os.path.join(settings.BASE_DIR, 'web', 'templates', 'screenshot.js')
+    SCREENSHOT_CODE = open(screenshot_js).read()
 
     thumb_dir = os.path.join(settings.BASE_DIR, 'static', 'thumb_nb')
     assert os.path.exists(thumb_dir)
@@ -160,14 +109,15 @@ renderPage('%s');
     try:
         # first get link and make sure it is accesible
         thumb_fname = os.path.join(thumb_dir, '%s.png' % fname)
-        CODE = SCREENSHOT_CODE % (thumb_fname, url)
+        CODE = SCREENSHOT_CODE % (url, thumb_fname)
         jsfile = os.path.join(settings.BASE_DIR, 'screenshot.js')
         with open(jsfile, 'w+') as f:
             f.write(CODE)
-        out = subprocess.check_call('/home/ubuntu/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs --ignore-ssl-errors=true %s' % jsfile, shell=True)
+        out = subprocess.check_call('/home/ubuntu/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs --ignore-ssl-errors=true --web-security=false %s' % jsfile, shell=True)
         if out != 0:
             raise ValueError
         print('Screenshot done')
+        print()
     except KeyboardInterrupt:
         return
     return 'static/thumb_nb/%s.png' % fname
