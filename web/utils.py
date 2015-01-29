@@ -22,7 +22,9 @@ def urlopen(s):
     return urllib2.urlopen(s, timeout=10).read()
 
 
-
+def unshorten_url(s):
+    response = urllib2.urlopen(s) # Some shortened url
+    return response.url
 
 def insert_notebook(url, screenshot=True):
     # TODO: do ajax-based async
@@ -33,6 +35,7 @@ def insert_notebook(url, screenshot=True):
 
     is_nbviewer = False
     try:
+        url = unshorten_url(url)
         r = requests.get(url)
         if 'text/html' in r.headers['content-type']:
             # check that it's a notebook
@@ -98,7 +101,16 @@ def insert_notebook(url, screenshot=True):
 
 def make_screenshots(url, fname):
     SCREENSHOT_CODE = """
+function renderPage(url) {
 var page = require('webpage').create();
+var redirectURL = null;
+ 
+page.onResourceReceived = function(resource) {
+    if (url == resource.url && resource.redirectURL) {
+      redirectURL = resource.redirectURL;
+    }
+  };
+
 page.viewportSize = {
   width: 800,
   height: 800
@@ -109,15 +121,37 @@ page.clipRect = {
   width: 800,
   height: 800
 };
+page.settings.resourceTimeout = 5000; // 5 seconds
 
-page.open('%s', function() {
-    page.evaluate(function() { 
+page.onResourceError = function(resourceError) {
+    page.reason = resourceError.errorString;
+    page.reason_url = resourceError.url;
+};
+
+page.open(url, function(status) {
+  if (redirectURL) {
+    console.log('redirecting');
+    renderPage(redirectURL);
+  } else if (status == 'success') {
+
+    page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function() {
+      page.evaluate(function() { 
         $('.navbar').remove();
-        $('.breadcrumb').remove()
+        $('.breadcrumb').remove();
+        page.render('%s');
+      });
     });
-    page.render('%s');
     phantom.exit();
+  } else {
+    // do something
+    console.log(status);
+    console.log(page.reason)
+    phantom.exit();
+  }
 });
+}
+
+renderPage('%s');
 """
 
     thumb_dir = os.path.join(settings.BASE_DIR, 'static', 'thumb_nb')
@@ -126,11 +160,11 @@ page.open('%s', function() {
     try:
         # first get link and make sure it is accesible
         thumb_fname = os.path.join(thumb_dir, '%s.png' % fname)
-        CODE = SCREENSHOT_CODE % (url, thumb_fname)
+        CODE = SCREENSHOT_CODE % (thumb_fname, url)
         jsfile = os.path.join(settings.BASE_DIR, 'screenshot.js')
         with open(jsfile, 'w+') as f:
             f.write(CODE)
-        out = subprocess.check_call('phantomjs %s' % jsfile, shell=True)
+        out = subprocess.check_call('/home/ubuntu/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs --ignore-ssl-errors=true %s' % jsfile, shell=True)
         if out != 0:
             raise ValueError
         print('Screenshot done')

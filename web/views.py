@@ -30,6 +30,7 @@ def sort(request, sort_by):
         tmp = Notebook.objects.order_by('-accessed_date')[0:nb_per_page]
         dates = list(set(tmp.values_list('accessed_date', flat=True)))
         dates.sort()
+        dates = dates[::-1]
         nbs = []
         for d in dates:
             tmp_nbs = []
@@ -56,6 +57,7 @@ def page(request, sort_by, obj_id):
         tmp = Notebook.objects.order_by('-accessed_date')[nb_per_page * i:nb_per_page * (i+1)]
         dates = list(set(tmp.values_list('accessed_date', flat=True)))
         dates.sort()
+        dates = dates[::-1]
         nbs = []
         for d in dates:
             tmp_nbs = []
