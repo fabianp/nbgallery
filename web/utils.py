@@ -48,7 +48,7 @@ def insert_notebook(url, screenshot=True):
         print('Downloading %s' % html_url)
         html = urlopen(html_url)
     except (urllib2.HTTPError, urllib2.URLError, socket.timeout,
-            ssl.SSLError, requests.exceptions.SSLError, 
+            ssl.SSLError, requests.exceptions.SSLError,
             requests.sessions.InvalidSchema) as e:
         print('Failed in downloading', e)
         return None
@@ -108,12 +108,17 @@ def make_screenshots(url, fname):
 
     try:
         # first get link and make sure it is accesible
+        thumb_fname_tmp = os.path.join(thumb_dir, '%s_tmp.png' % fname)
         thumb_fname = os.path.join(thumb_dir, '%s.png' % fname)
-        CODE = SCREENSHOT_CODE % (url, thumb_fname)
+        CODE = SCREENSHOT_CODE % (url, thumb_fname_tmp)
         jsfile = os.path.join(settings.BASE_DIR, 'screenshot.js')
         with open(jsfile, 'w+') as f:
             f.write(CODE)
-        out = subprocess.check_call('/home/ubuntu/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs --ignore-ssl-errors=true --web-security=false %s' % jsfile, shell=True)
+        phantomjs = os.path.join(settings.PHANTOMJS_DIR, 'phantomjs')
+        out = subprocess.check_call('%s --ignore-ssl-errors=true --web-security=false %s' % (phantomjs, jsfile), shell=True)
+        if out != 0:
+            raise ValueError
+        out = subprocess.call('convert %s -resize 295x295 -unsharp 0x1 %s' % (thumb_fname_tmp, thumb_fname), shell=True)
         if out != 0:
             raise ValueError
         print('Screenshot done')

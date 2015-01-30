@@ -13,7 +13,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
-TEMPLATE_DEBUG = False
+#TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 privsettings = os.path.join(os.path.dirname(__file__), 'privatesettings.py')
@@ -69,4 +70,3 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
-
