@@ -27,6 +27,11 @@ def unshorten_url(s):
     return response.url
 
 def insert_notebook(url, screenshot=True):
+    """
+    Returns
+    -------
+    dict
+    """
     # TODO: do ajax-based async
     from web.models import Notebook
 
@@ -51,7 +56,7 @@ def insert_notebook(url, screenshot=True):
             ssl.SSLError, requests.exceptions.SSLError,
             requests.sessions.InvalidSchema) as e:
         print('Failed in downloading', e)
-        return None
+        return {'success': False, 'reason': 'Failed accessing the notebook'}
 
 
     extracted = extraction.Extractor().extract(

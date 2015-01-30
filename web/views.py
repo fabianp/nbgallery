@@ -40,12 +40,13 @@ def sort(request, sort_by):
             nbs.append([d, tmp_nbs])
         context['date_active'] = 'active'
     elif sort_by == 'random':
-         nbs = Notebook.objects.order_by('?')[0:nb_per_page]
-         context['random_active'] = 'active'
+        nbs = Notebook.objects.order_by('?')[0:nb_per_page]
+        context['random_active'] = 'active'
     else:
         raise NotImplementedError
     context['nbs'] = nbs
     return render(request, 'web/index.html', context)
+
 
 def page(request, sort_by, obj_id):
     i = int(obj_id) - 1
@@ -71,7 +72,7 @@ def page(request, sort_by, obj_id):
         more_pages = (len(nbs) == nb_per_page)
     else:
         raise NotImplementedError
-    
+
     context = {'nbs': nbs, 'next_page': int(obj_id)+1, 'more_pages' : more_pages, 'sort_by': sort_by}
     return render(request, 'web/page.html', context)
 
@@ -84,9 +85,8 @@ def submit(request):
         if form.is_valid():
             # process the data in form.cleaned_data as required
             url = form.cleaned_data['URL']
-            nb = insert_notebook(url)
-            if nb is None:
-                raise Exception
+            out = insert_notebook(url)
+
 
             # redirect to a new URL:
             return HttpResponseRedirect('/thanks/%s/' % nb['link'])
