@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from models import Notebook
 from django import forms
 from django.http import HttpResponseRedirect
+from django.template import Context, Template
 
 from utils import insert_notebook
 
@@ -86,10 +87,23 @@ def submit(request):
             # process the data in form.cleaned_data as required
             url = form.cleaned_data['URL']
             out = insert_notebook(url)
-
+            if out['success']:
+                nb = Notebook.objects.get(pk=out['pk'])
+                t = Template("""<h2>It worked!</h2><p>Your notebook is now online:</p>
+    <div class="thumbitem thumbnail">
+      <a href="/redirect/{{nb.id}}" target="_blank">
+        <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
+      </a>
+      <h4>{{nb.title}}</h4>
+      <p>{{nb.description}}</p>
+    </div>""")
+                c = Context({'nb': nb})
+                html = t.render(c)
+            else:
+                html = '<h2>O o, not workkk: %s</h2>' % out['reason']
 
             # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/%s/' % nb['link'])
+            return HttpResponse(html)
 
     # if a GET (or any other method) we'll create a blank form
     else:

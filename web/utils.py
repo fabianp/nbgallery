@@ -85,7 +85,7 @@ def insert_notebook(url, screenshot=True):
 
     similar = Notebook.objects.filter(title=title, description=description)
     if len(Notebook.objects.filter(title=title, description=description)) > 0:
-        return {'success': False, 'reason': 'Duplicate document', 'link': similar[0].pk}
+        return {'success': False, 'reason': 'Duplicate document', 'pk': similar[0].pk}
 
     obj, created = Notebook.objects.get_or_create(url=url)
     # screenshot
@@ -101,7 +101,7 @@ def insert_notebook(url, screenshot=True):
     obj.url = url
     obj.accessed_date = datetime.now()
     obj.save()
-    return {'success': True, 'link' :  obj.pk}
+    return {'success': True, 'pk' :  obj.pk}
 
 
 def make_screenshots(url, fname):
