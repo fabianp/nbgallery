@@ -1,0 +1,3 @@
+to launch postresql on OSX:
+
+    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
