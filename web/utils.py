@@ -30,7 +30,7 @@ def insert_notebook(url, screenshot=True):
     """
     Returns
     -------
-    dict
+    dict {'success': True/False}
     """
     # TODO: do ajax-based async
     from web.models import Notebook
