@@ -50,7 +50,7 @@ $( "#submitForm" ).submit(function( event ) {
   });
 
   posting.fail(function (xhr, textStatus, errorThrown) {
-    console.log(xhr.responseText)
+    $( "#result" ).empty().append(xhr.responseText);
   });
 });
   </script>

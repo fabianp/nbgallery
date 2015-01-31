@@ -86,7 +86,7 @@ def insert_notebook(url, screenshot=True):
 
     similar = Notebook.objects.filter(title=title, description=description)
     if len(Notebook.objects.filter(title=title, description=description)) > 0:
-        return {'status': 'success', 'reason': 'Duplicate document', 'pk': similar[0].pk}
+        return {'status': 'failure', 'reason': 'duplicate document', 'pk': similar[0].pk}
 
     obj, created = Notebook.objects.get_or_create(url=url)
     # screenshot

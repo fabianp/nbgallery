@@ -88,23 +88,26 @@ def submit(request):
             # process the data in form.cleaned_data as required
             url = form.cleaned_data['URL']
             out = insert_notebook(url)
-            if out['status'] == 'success':
-                nb = Notebook.objects.get(pk=out['pk'])
-                t = Template("""<h2>It worked!</h2><p>Your notebook is now online:</p>
-    <div class="thumbcenter thumbnail">
+            t = Template("""<div class="thumbcenter thumbnail">
       <a href="/redirect/{{nb.id}}" target="_blank">
         <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
       </a>
       <h4>{{nb.title}}</h4>
       <p>{{nb.description}}</p>
     </div>
-<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>
     """)
-                c = Context({'nb': nb})
-                html = t.render(c)
-            else:
-                html = '<h2>O o, not workkk: %s</h2>' % out['reason']
 
+            if out['status'] == 'success':
+                nb = Notebook.objects.get(pk=out['pk'])
+                html = "<h2>It worked!</h2><p>Your notebook is now online:</p>"
+                c = Context({'nb': nb})
+                html += t.render(c)
+                html += '<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>'
+            elif out['reason'] == 'duplicate document':
+                html = '<h2>This document is already in the collection</h2>'
+                nb = Notebook.objects.get(pk=out['pk'])
+                c = Context({'nb': nb})
+                html += t.render(c)
             # redirect to a new URL:
             return HttpResponse(html)
 
