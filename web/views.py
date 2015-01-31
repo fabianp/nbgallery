@@ -97,7 +97,9 @@ def submit(request):
       </a>
       <h4>{{nb.title}}</h4>
       <p>{{nb.description}}</p>
-    </div>""")
+    </div>
+<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>
+    """)
                 c = Context({'nb': nb})
                 html = t.render(c)
             else:
