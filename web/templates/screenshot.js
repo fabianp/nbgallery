@@ -1,4 +1,4 @@
-var resourceWait  = 300,
+var resourceWait  = 5000,
     maxRenderWait = 10000,
     url           = '%s';
 
@@ -9,18 +9,18 @@ var page          = require('webpage').create(),
 
 page.viewportSize = { width: 800, height : 800 };
 
-page.clipRect = {
-  top: 0,
-  left: 30,
-  width: 800,
-  height: 800
-};
+//page.clipRect = {
+  ////top: 0,
+  ////left: 30,
+  //width: 800,
+  //height: 800
+//};
 
 function doRender() {
    page.evaluate(function () {
      jQuery('.navbar').remove()
      jQuery('.breadcrumb').remove();
-  })
+  });
     page.render('%s');
     phantom.exit();
 }

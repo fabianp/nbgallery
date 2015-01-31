@@ -9,6 +9,7 @@ import extraction
 import base64
 import subprocess
 from datetime import datetime
+from PIL import Image
 
 from nbviewer.utils import transform_ipynb_uri, ipython_info
 
@@ -56,7 +57,7 @@ def insert_notebook(url, screenshot=True):
             ssl.SSLError, requests.exceptions.SSLError,
             requests.sessions.InvalidSchema) as e:
         print('Failed in downloading', e)
-        return {'success': False, 'reason': 'Failed accessing the notebook'}
+        return {'status': 'success', 'reason': 'Failed accessing the notebook'}
 
 
     extracted = extraction.Extractor().extract(
@@ -85,23 +86,29 @@ def insert_notebook(url, screenshot=True):
 
     similar = Notebook.objects.filter(title=title, description=description)
     if len(Notebook.objects.filter(title=title, description=description)) > 0:
-        return {'success': False, 'reason': 'Duplicate document', 'pk': similar[0].pk}
+        return {'status': 'success', 'reason': 'Duplicate document', 'pk': similar[0].pk}
 
     obj, created = Notebook.objects.get_or_create(url=url)
     # screenshot
     if screenshot:
-        thumb_img = make_screenshots(html_url, obj.pk)
-        if thumb_img is None:
-            return
-        obj.thumb_img = thumb_img
+        out = make_screenshots(html_url, obj.pk)
+        if out['status'] == 'failure':
+            return out
+        else:
+            obj.thumb_img = out['thumb']
 
+
+    # XXX remove assert with error messages
+    assert len(title) < 500
     obj.title = title
+    assert len(description) < 2000
     obj.description = description
+    assert len(html_url) < 1000
     obj.html_url = html_url
+    assert len(url) < 1000
     obj.url = url
-    obj.accessed_date = datetime.now()
     obj.save()
-    return {'success': True, 'pk' :  obj.pk}
+    return {'status': 'success', 'pk' :  obj.pk}
 
 
 def make_screenshots(url, fname):
@@ -120,17 +127,19 @@ def make_screenshots(url, fname):
         with open(jsfile, 'w+') as f:
             f.write(CODE)
         phantomjs = os.path.join(settings.PHANTOMJS_DIR, 'phantomjs')
-        out = subprocess.check_call('%s --ignore-ssl-errors=true --web-security=false %s' % (phantomjs, jsfile), shell=True)
+        out = subprocess.check_call('%s --ignore-ssl-errors=true  --ssl-protocol=any --debug=true --web-security=false %s' % (phantomjs, jsfile), shell=True)
         if out != 0:
-            raise ValueError
-        out = subprocess.call('convert %s -resize 295x295 -unsharp 0x1 %s' % (thumb_fname_tmp, thumb_fname), shell=True)
-        if out != 0:
-            raise ValueError
-        print('Screenshot done')
-        print()
+            return {'status': 'error', 'reason': 'something in phantomjs'}
+        img = Image.open(thumb_fname_tmp)
+        width = img.size[0]
+        img_crop = img.crop((width // 2 - 400, 0, width // 2 + 450, 400 + 450))
+        img_crop.save(thumb_fname)
+        #out = subprocess.call('convert %s -resize 295x295 -unsharp 0x1 %s' % (thumb_fname_tmp, thumb_fname), shell=True)
+        #if out != 0:
+            #return {'status': 'error', 'reason': 'something in convert'}
     except KeyboardInterrupt:
         return
-    return 'static/thumb_nb/%s.png' % fname
+    return {'status': 'success', 'thumb': 'static/thumb_nb/%s.png' % fname}
 
 
 def find_title(html):

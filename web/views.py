@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from models import Notebook
 from django import forms
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.template import Context, Template
 
 from utils import insert_notebook
@@ -13,7 +13,7 @@ nb_per_page = 30
 
 # forms
 class NotebookForm(forms.Form):
-    URL = forms.URLField(label='URL of the notebook', required=True)
+    URL = forms.URLField(label='paste the URL of the notebook', required=True)
 
 
 # Create your views here.
@@ -80,6 +80,7 @@ def page(request, sort_by, obj_id):
 
 def submit(request):
     if request.method == 'POST':
+        print('POST')
         # create a form instance and populate it with data from the request:
         form = NotebookForm(request.POST)
         # check whether it's valid:
@@ -87,10 +88,10 @@ def submit(request):
             # process the data in form.cleaned_data as required
             url = form.cleaned_data['URL']
             out = insert_notebook(url)
-            if out['success']:
+            if out['status'] == 'success':
                 nb = Notebook.objects.get(pk=out['pk'])
                 t = Template("""<h2>It worked!</h2><p>Your notebook is now online:</p>
-    <div class="thumbitem thumbnail">
+    <div class="thumbcenter thumbnail">
       <a href="/redirect/{{nb.id}}" target="_blank">
         <img width="295px" src="/{{nb.thumb_img}}" alt="{{nb.title}}"/>
       </a>

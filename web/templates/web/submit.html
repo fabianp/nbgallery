@@ -5,14 +5,14 @@
 
 <div class="container" style="margin-top: 100px">
 <h1>Warning, still not working</h1>
-<form action="/submit/" method="post">
+<form action="/submit/" method="post" id="submitForm">
     {% csrf_token %}
     {{ form|bootstrap }}
     <input type="submit" class="btn btn-default" value="Submit" />
 </form>
 
 <!-- the result of the search will be rendered inside this div -->
-<div id="result"></div>
+<div id="result" class="container" style='text-align: center'></div>
 
 </div>
 {% endblock %}
@@ -20,5 +20,35 @@
 
 {% block scripts %}
   <script>
+$( "#submitForm" ).submit(function( event ) {
+
+  // Stop form from submitting normally
+  event.preventDefault();
+
+  // Get some values from elements on the page:
+  var $form = $( this ),
+    term = $form.find( "input[name='URL']" ).val(),
+    url = $form.attr( "action" );
+    csrfmiddlewaretoken = $form.find("input[name='csrfmiddlewaretoken']").val();
+
+  // Send the data using post
+  data_post = { 'URL': term, 'csrfmiddlewaretoken': csrfmiddlewaretoken };
+  var posting = $.post( url,  data_post);
+
+
+  // put some loading image while we wait
+  $('#result').empty().append('<h3>processing your notebook... <img src="/static/img/ajax-loader.gif" /></h3>');
+
+  // XXX TODO do something on timeout
+
+  // Put the results in a div
+  posting.done(function( data ) {
+    $( "#result" ).empty().append( data );
+  });
+
+  posting.fail(function (xhr, textStatus, errorThrown) {
+    console.log(xhr.responseText)
+  });
+});
   </script>
 {% endblock %}
