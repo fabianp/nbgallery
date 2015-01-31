@@ -93,6 +93,7 @@ def insert_notebook(url, screenshot=True):
     if screenshot:
         out = make_screenshots(html_url, obj.pk)
         if out['status'] == 'failure':
+            obj.delete()
             return out
         else:
             obj.thumb_img = out['thumb']
@@ -128,7 +129,7 @@ def make_screenshots(url, fname):
             f.write(CODE)
         phantomjs = os.path.join(settings.PHANTOMJS_DIR, 'phantomjs')
         out = subprocess.check_call('%s --ignore-ssl-errors=true  --ssl-protocol=any --debug=true --web-security=false %s' % (phantomjs, jsfile), shell=True)
-        if out != 0:
+        if out != 0 or not os.path.exists(thumb_fname_tmp):
             return {'status': 'error', 'reason': 'something in phantomjs'}
         img = Image.open(thumb_fname_tmp)
         width = img.size[0]
