@@ -133,8 +133,9 @@ def make_screenshots(url, fname):
             return {'status': 'error', 'reason': 'something in phantomjs'}
         img = Image.open(thumb_fname_tmp)
         width = img.size[0]
-        img_crop = img.crop((width // 2 - 400, 0, width // 2 + 450, 400 + 450))
-        img_crop.save(thumb_fname)
+        img = img.crop((width // 2 - 400, 0, width // 2 + 450, 400 + 450))
+        img = img.resize((295, 295), Image.ANTIALIAS)
+        img.save(thumb_fname)
         #out = subprocess.call('convert %s -resize 295x295 -unsharp 0x1 %s' % (thumb_fname_tmp, thumb_fname), shell=True)
         #if out != 0:
             #return {'status': 'error', 'reason': 'something in convert'}

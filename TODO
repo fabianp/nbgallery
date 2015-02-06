@@ -1,3 +1,7 @@
+
+
+move urls from integers to base64 (shorter)
+
 remove stuff after the .ipynb extension (i.e. .ipynb?blabla=asdfaf)
 
 

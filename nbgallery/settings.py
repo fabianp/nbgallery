@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-privsettings = os.path.join(os.path.dirname(__file__), 'privatesettings.py')
-execfile(privsettings)
 
 # Application definition
 
@@ -56,3 +54,6 @@ USE_L10N = True
 
 USE_TZ = True
 
+# private settings
+privsettings = os.path.join(os.path.dirname(__file__), 'privatesettings.py')
+execfile(privsettings)
