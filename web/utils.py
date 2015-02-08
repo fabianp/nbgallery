@@ -136,9 +136,13 @@ def make_screenshots(url, fname):
         img = img.crop((width // 2 - 400, 0, width // 2 + 450, 400 + 450))
         img = img.resize((295, 295), Image.ANTIALIAS)
         img.save(thumb_fname)
-        #out = subprocess.call('convert %s -resize 295x295 -unsharp 0x1 %s' % (thumb_fname_tmp, thumb_fname), shell=True)
-        #if out != 0:
-            #return {'status': 'error', 'reason': 'something in convert'}
+
+        # give correct file permissions
+        os.chmod(thumb_fname, 1230) # 664 in octal
+
+        # cleanup
+        os.remove(thumb_fname_tmp)
+        os.remove(jsfile)
     except KeyboardInterrupt:
         return
     return {'status': 'success', 'thumb': 'static/thumb_nb/%s.png' % fname}
