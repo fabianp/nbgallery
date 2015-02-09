@@ -19,7 +19,7 @@ class NotebookForm(forms.Form):
 # Create your views here.
 
 def index(request):
-    return HttpResponseRedirect('/sort/views/')
+    return HttpResponseRedirect('/sort/date/')
 
 
 def sort(request, sort_by):
