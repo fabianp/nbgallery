@@ -138,7 +138,13 @@ def make_screenshots(url, fname):
         img.save(thumb_fname)
 
         # give correct file permissions
-        os.chmod(thumb_fname, 1230) # 664 in octal
+        # would be better to change the group
+        # to www-data but for some reason that
+        # is not working
+        try:
+            os.chmod(thumb_fname, 438) # 666 in octal
+        except os.OSError:
+            pass
 
         # cleanup
         os.remove(thumb_fname_tmp)
