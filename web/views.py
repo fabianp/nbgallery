@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from models import Notebook
+from models import Notebook, Hit
 from django import forms
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import Context, Template
 
 from utils import insert_notebook
+from datetime import datetime
 
 
 # global variables
@@ -129,8 +130,12 @@ def thanks(request, obj_id):
 
 
 def nb_redirect(request, obj_id):
-    nb = Notebook.objects.get(pk=obj_id)
+
+    # increment the current object by 1
+    nb = Notebook.objects.get(pk=obj_id) # TODO: get or 404
     nb.hits_total += 1
     nb.save()
+    h = Hit(model=nb, created=datetime.now())
+    h.save()
     # increment one view
     return redirect(nb.html_url)

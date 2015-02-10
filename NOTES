@@ -7,6 +7,11 @@ Trending topings
 
 http://stackoverflow.com/questions/787496/what-is-the-best-way-to-compute-trending-topics-or-tags
 
+
+Nice design in the header of
+http://www.topix.com/
+
+
 to launch postresql on OSX:
 
     launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist

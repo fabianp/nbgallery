@@ -3,8 +3,7 @@ from django.db import models
 
 class Notebook(models.Model):
     """
-    At 1am flush the hits_* of the current day.
-    Every hour update the weekly count.
+    TODO: prettify
     """
     title = models.CharField(max_length=500)
     text_hash = models.CharField(max_length=100)
@@ -17,3 +16,13 @@ class Notebook(models.Model):
 
     def __unicode__(self):
         return self.title
+
+
+
+class Hit(models.Model):
+    created = models.DateTimeField(editable=False)
+    ip = models.CharField(max_length=40, editable=False)
+    session = models.CharField(max_length=40, editable=False)
+    user_agent = models.CharField(max_length=255, editable=False)
+    model = models.ForeignKey(Notebook)
+
