@@ -143,7 +143,7 @@ def make_screenshots(url, fname):
         # is not working
         try:
             os.chmod(thumb_fname, 438) # 666 in octal
-        except os.OSError:
+        except OSError:
             pass
 
         # cleanup
