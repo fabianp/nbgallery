@@ -13,6 +13,7 @@ class Notebook(models.Model):
     html_url = models.URLField(max_length=1000)
     hits_total = models.IntegerField(default=0)
     description = models.CharField(max_length=2000)
+    full_html = models.TextField()
 
     def __unicode__(self):
         return self.title

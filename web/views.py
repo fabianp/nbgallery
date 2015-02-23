@@ -20,7 +20,7 @@ class NotebookForm(forms.Form):
 # Create your views here.
 
 def index(request):
-    return HttpResponseRedirect('/sort/date/')
+    return sort(request, 'date')
 
 
 def sort(request, sort_by):
@@ -139,4 +139,7 @@ def nb_redirect(request, obj_id):
     h = Hit(model=nb, created=timezone.now(), ip=ip)
     h.save()
     # increment one view
-    return redirect(nb.html_url)
+    import nltk
+    context = {'html' : nltk.clean_html(nb.full_html), 'redirect' : nb.html_url}
+    return render(request, 'web/redirect.html', context)
+    #return redirect(nb.html_url)

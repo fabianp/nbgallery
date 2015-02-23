@@ -108,6 +108,7 @@ def insert_notebook(url, screenshot=True):
     obj.html_url = html_url
     assert len(url) < 1000
     obj.url = url
+    obj.full_html = html
     obj.save()
     return {'status': 'success', 'pk' :  obj.pk}
 
