@@ -109,6 +109,8 @@ def submit(request):
                 nb = Notebook.objects.get(pk=out['pk'])
                 c = Context({'nb': nb})
                 html += t.render(c)
+            else:
+                html = '<h2>Failed because of: %s</h2>' % out['reason']
             # redirect to a new URL:
             return HttpResponse(html)
 
