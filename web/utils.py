@@ -57,7 +57,7 @@ def insert_notebook(url, screenshot=True):
             ssl.SSLError, requests.exceptions.SSLError,
             requests.sessions.InvalidSchema) as e:
         print('Failed in downloading', e)
-        return {'status': 'success', 'reason': 'Failed accessing the notebook'}
+        return {'status': 'failure', 'reason': 'Failed accessing the notebook'}
 
 
     extracted = extraction.Extractor().extract(
