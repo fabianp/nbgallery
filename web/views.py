@@ -103,12 +103,10 @@ def submit(request):
                 html = "<h2>It worked!</h2><p>Your notebook is now online:</p>"
                 c = Context({'nb': nb})
                 html += t.render(c)
-                html += '<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>'
-            elif out['reason'] == 'duplicate document':
-                html = '<h2>This document is already in the collection</h2>'
-                nb = Notebook.objects.get(pk=out['pk'])
-                c = Context({'nb': nb})
-                html += t.render(c)
+                if out['created']:
+                    html += '<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>'
+                else:
+                    html += '<h3>This notebook was already in the collection</h3>'
             else:
                 html = '<h2>Failed because of: %s</h2>' % out['reason']
             # redirect to a new URL:
