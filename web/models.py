@@ -15,6 +15,9 @@ class Notebook(models.Model):
     description = models.CharField(max_length=2000)
     full_html = models.TextField()
 
+    ## failures when accesing the document
+    #failures = models.ForeignKey(models.DateTimeField)
+
     def __unicode__(self):
         return self.title
 
