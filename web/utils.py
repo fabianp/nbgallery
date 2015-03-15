@@ -30,7 +30,7 @@ def unshorten_url(s):
     response = urllib2.urlopen(s) # Some shortened url
     return response.url
 
-def insert_notebook(url, screenshot=True):
+def insert_notebook(url, screenshot=True, nb=None):
     """
     Returns
     -------
@@ -59,6 +59,8 @@ def insert_notebook(url, screenshot=True):
     except (urllib2.HTTPError, urllib2.URLError, socket.timeout,
             ssl.SSLError, requests.exceptions.SSLError,
             requests.sessions.InvalidSchema) as e:
+        if nb is not None:
+            nb.failures_access += 1
         print('Failed in downloading', e)
         return {'status': 'failure', 'reason': 'Failed accessing the notebook'}
 
@@ -87,16 +89,23 @@ def insert_notebook(url, screenshot=True):
     title = title.strip(u'¶')
 
 
-    similar = Notebook.objects.filter(title=title, description=description)
-    if len(Notebook.objects.filter(title=title, description=description)) > 0:
-        return {'status': 'failure', 'reason': 'duplicate document', 'pk': similar[0].pk}
+    #similar = Notebook.objects.filter(title=title, description=description)
+    #if len(Notebook.objects.filter(title=title, description=description)) > 0:
+        #return {'status': 'failure', 'reason': 'duplicate document', 'pk': similar[0].pk}
 
-    obj, created = Notebook.objects.get_or_create(url=url)
+    if nb is None:
+        obj, created = Notebook.objects.get_or_create(url=url)
+    else:
+        obj = nb
+        created = False
     # screenshot
     if screenshot:
         out = make_screenshots(html_url, obj.pk)
         if out['status'] == 'failure':
-            obj.delete()
+            if created:
+                obj.delete()
+            else:
+                obj.failures_access += 1
             return out
         else:
             obj.thumb_img = out['thumb']
@@ -112,29 +121,37 @@ def insert_notebook(url, screenshot=True):
     assert len(url) < 1000
     obj.url = url
     obj.full_html = html
+
+    obj.last_accessed_date = datetime.now().date()
     obj.save()
-    return {'status': 'success', 'pk' :  obj.pk}
+    return {'status': 'success', 'pk' :  obj.pk, 'created': created}
 
 
 def make_screenshots(url, fname):
     screenshot_js = os.path.join(settings.BASE_DIR, 'web', 'templates', 'screenshot.js')
     SCREENSHOT_CODE = open(screenshot_js).read()
 
+    TMP_DIR = os.path.join(settings.BASE_DIR, 'tmp')
+    if not os.path.exists(TMP_DIR):
+        os.mkdir(TMP_DIR)
+
     thumb_dir = os.path.join(settings.BASE_DIR, 'static', 'thumb_nb')
     assert os.path.exists(thumb_dir)
-    jsfile = tempfile.NamedTemporaryFile(mode='w+t', suffix='.js', delete=False)
-    thumb_tmp = tempfile.NamedTemporaryFile(suffix='.png')
+    jsfile = tempfile.NamedTemporaryFile(mode='w+t', suffix='.js', delete=False,
+                                         dir=TMP_DIR)
+    thumb_tmp = tempfile.NamedTemporaryFile(suffix='.png', dir=TMP_DIR)
 
     try:
         # first get link and make sure it is accesible
         thumb_fname = os.path.join(thumb_dir, '%s.png' % fname)
         CODE = SCREENSHOT_CODE % (url, thumb_tmp.name)
         jsfile.write(CODE)
+        jsfile.flush()
         phantomjs = os.path.join(settings.PHANTOMJS_DIR, 'phantomjs')
         print '%s %s' % (phantomjs, jsfile.name)
         subprocess.call('whoami', shell=True)
         os.chmod(jsfile.name, 0777)
-        subprocess.call('%s %s' % (phantomjs, jsfile.name), shell=True)
+        #subprocess.call('%s %s' % (phantomjs, jsfile.name), shell=True)
         out = subprocess.check_call('%s %s' % (phantomjs, jsfile.name), shell=True)
         if out != 0 or not os.path.exists(thumb_tmp.name):
             return {'status': 'error', 'reason': 'something in phantomjs'}
@@ -145,7 +162,7 @@ def make_screenshots(url, fname):
         img.save(thumb_fname)
         # cleanup
     finally:
-        # jsfile.close()
+        jsfile.close()
         thumb_tmp.close()
     return {'status': 'success', 'thumb': 'static/thumb_nb/%s.png' % fname}
 

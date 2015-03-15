@@ -6,21 +6,15 @@ import os
 import time
 import urllib2
 import extraction
+import datetime
 
-objs = Notebook.objects.order_by('-accessed_date')
+# local imports
+from web import utils
+
+today = datetime.datetime.now().date()
+last_week = today - datetime.timedelta(days=5)
+
+objs = Notebook.objects.filter(accessed_date__lt=last_week)
 for o in objs:
-    p = '/var/www/html/nbgallery/' + o.thumb_img
-    try:
-        tmp = urllib2.urlopen(o.html_url, timeout=10).read()
-        extracted = extraction.Extractor().extract(
-            tmp, source_url=o.html_url)
-        o.full_html = tmp
-        o.save()
-    except:
-        pass
-    #if True: #not os.path.exists(p):
-        #print(o.title)
-        #out = make_screenshots(o.html_url, o.pk)
-        #o.thumb_img = out['thumb']
-        #o.save()
-        #time.sleep(2) # get some time off
+    out = utils.insert_notebook(o.url, nb=o)
+    print('Finished: %s' % out)

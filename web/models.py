@@ -1,5 +1,5 @@
 from django.db import models
-
+import datetime
 
 class Notebook(models.Model):
     """
@@ -8,6 +8,8 @@ class Notebook(models.Model):
     title = models.CharField(max_length=500)
     text_hash = models.CharField(max_length=100)
     accessed_date = models.DateField(auto_now_add=True)
+    last_accessed_date = models.DateField(auto_now_add=True,
+        default=datetime.datetime.now().date() - datetime.timedelta(days=10))
     thumb_img = models.URLField(max_length=500)
     url = models.URLField(max_length=1000)
     html_url = models.URLField(max_length=1000)
@@ -15,8 +17,8 @@ class Notebook(models.Model):
     description = models.CharField(max_length=2000)
     full_html = models.TextField()
 
-    ## failures when accesing the document
-    #failures = models.ForeignKey(models.DateTimeField)
+    ## failures since last accessed date
+    failures_access = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.title
