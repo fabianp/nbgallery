@@ -10,6 +10,7 @@ import base64
 import subprocess
 from datetime import datetime
 from PIL import Image
+import tempfile
 
 from nbviewer.utils import transform_ipynb_uri, ipython_info
 
@@ -17,6 +18,8 @@ from joblib import Memory
 #mem = Memory(cachedir='/tmp/joblib2')
 
 from django.conf import settings
+
+PHANTOMJS_OPTIONS = "--ignore-ssl-errors=true  --ssl-protocol=any --debug=true --web-security=false"
 
 #@mem.cache
 def urlopen(s):
@@ -119,39 +122,31 @@ def make_screenshots(url, fname):
 
     thumb_dir = os.path.join(settings.BASE_DIR, 'static', 'thumb_nb')
     assert os.path.exists(thumb_dir)
+    jsfile = tempfile.NamedTemporaryFile(mode='w+t', suffix='.js', delete=False)
+    thumb_tmp = tempfile.NamedTemporaryFile(suffix='.png')
 
     try:
         # first get link and make sure it is accesible
-        thumb_fname_tmp = os.path.join(thumb_dir, '%s_tmp.png' % fname)
         thumb_fname = os.path.join(thumb_dir, '%s.png' % fname)
-        CODE = SCREENSHOT_CODE % (url, thumb_fname_tmp)
-        jsfile = os.path.join(settings.BASE_DIR, 'screenshot.js')
-        with open(jsfile, 'w+') as f:
-            f.write(CODE)
+        CODE = SCREENSHOT_CODE % (url, thumb_tmp.name)
+        jsfile.write(CODE)
         phantomjs = os.path.join(settings.PHANTOMJS_DIR, 'phantomjs')
-        out = subprocess.check_call('%s --ignore-ssl-errors=true  --ssl-protocol=any --debug=true --web-security=false %s' % (phantomjs, jsfile), shell=True)
-        if out != 0 or not os.path.exists(thumb_fname_tmp):
+        print '%s %s' % (phantomjs, jsfile.name)
+        subprocess.call('whoami', shell=True)
+        os.chmod(jsfile.name, 0777)
+        subprocess.call('%s %s' % (phantomjs, jsfile.name), shell=True)
+        out = subprocess.check_call('%s %s' % (phantomjs, jsfile.name), shell=True)
+        if out != 0 or not os.path.exists(thumb_tmp.name):
             return {'status': 'error', 'reason': 'something in phantomjs'}
-        img = Image.open(thumb_fname_tmp)
+        img = Image.open(thumb_tmp.name)
         width = img.size[0]
         img = img.crop((width // 2 - 400, 0, width // 2 + 450, 400 + 450))
         img = img.resize((295, 295), Image.ANTIALIAS)
         img.save(thumb_fname)
-
-        # give correct file permissions
-        # would be better to change the group
-        # to www-data but for some reason that
-        # is not working
-        try:
-            os.chmod(thumb_fname, 438) # 666 in octal
-        except OSError:
-            pass
-
         # cleanup
-        os.remove(thumb_fname_tmp)
-        os.remove(jsfile)
-    except KeyboardInterrupt:
-        return
+    finally:
+        # jsfile.close()
+        thumb_tmp.close()
     return {'status': 'success', 'thumb': 'static/thumb_nb/%s.png' % fname}
 
 
