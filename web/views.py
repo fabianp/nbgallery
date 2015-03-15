@@ -106,7 +106,7 @@ def submit(request):
                 if out['created']:
                     html += '<h3>New Notebooks will appear immediate in the <a href="/sort/date/">new Notebooks section</a></h3>'
                 else:
-                    html += '<h3>This notebook was already in the collection</h3>'
+                    html += '<h3>This notebook was already in the collection, but content and screenshot have been updated</h3>'
             else:
                 html = '<h2>Failed because of: %s</h2>' % out['reason']
             # redirect to a new URL:
