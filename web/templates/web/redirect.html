@@ -2,7 +2,9 @@
 <html>
 <title>{{title}}</title>
 <body style="opacity: 0">
+    {% autoescape off %}
     {{html}}
+    {% endautoescape %}
     <script>
         window.location.replace("{{redirect}}");
     </script>

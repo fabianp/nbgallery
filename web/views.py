@@ -141,6 +141,6 @@ def nb_redirect(request, obj_id):
     # increment one view
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(nb.full_html)
-    context = {'html' : soup.get_text(), 'redirect' : nb.html_url, 'title': nb.title}
+    context = {'html' : str(soup.find('body')), 'redirect' : nb.html_url, 'title': nb.title}
     return render(request, 'web/redirect.html', context)
     #return redirect(nb.html_url)

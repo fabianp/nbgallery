@@ -56,6 +56,20 @@
       border-radius: 10px;
     }
 
+    /* google custom search */
+    input.gsc-input,
+    .gsc-input-box,
+    .gsc-input-box-hover,
+    .gsc-input-box-focus,
+    .gsc-search-button {
+	box-sizing: content-box;
+	line-height: normal;
+    }
+
+  .gsc-control-cse {
+     background-color: inherit!important;
+     border: 0!important;
+  }
 
     </style>
     <title>Notebook Gallery</title>
@@ -91,21 +105,23 @@
 	  <li class="{{submit_active}}"><a href="/submit/">Submit Notebook</a></li>
 	  <li class="{{about_active}}"><a href="/about/">About</a></li>
 	</ul>
-	<!--<div class="nav navbar-nav" style="width: 300px; float: left">-->
-<!--<script>-->
-  <!--(function() {-->
-    <!--var cx = '016639176250731907682:nxfi7oye7ew';-->
-    <!--var gcse = document.createElement('script');-->
-    <!--gcse.type = 'text/javascript';-->
-    <!--gcse.async = true;-->
-    <!--gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +-->
-        <!--'//www.google.com/cse/cse.js?cx=' + cx;-->
-    <!--var s = document.getElementsByTagName('script')[0];-->
-    <!--s.parentNode.insertBefore(gcse, s);-->
-  <!--})();-->
-<!--</script>-->
-<!--<gcse:search></gcse:search>-->
-	<!--</div>-->
+
+
+	<div class="nav navbar-nav" style="width: 300px; float: left">
+<script>
+  (function() {
+    var cx = '016639176250731907682:nxfi7oye7ew';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+	</div>
 
 
       </div><!-- /.navbar-collapse -->
