@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+  <ul>
+  {% for nb in nbs %}
+  <li><a href="{{nb.html_url}}">{{nb.title}}</a></li>
+  {% endfor %}
+  </ul>
+</body>
+</html>

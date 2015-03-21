@@ -144,3 +144,12 @@ def nb_redirect(request, obj_id):
     context = {'html' : str(soup.find('body')), 'redirect' : nb.html_url, 'title': nb.title}
     return render(request, 'web/redirect.html', context)
     #return redirect(nb.html_url)
+
+
+def list_all(request):
+    """
+    List all available notebooks
+    """
+    nbs = Notebook.objects.all()
+    context = {'nbs': nbs}
+    return render(request, 'web/all_nb.html', context)

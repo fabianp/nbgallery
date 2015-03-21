@@ -16,5 +16,5 @@ urlpatterns = patterns('',
     url(r'^sort/(?P<sort_by>\w+)/$', web.views.sort),
     url(r'^sort/(?P<sort_by>\w+)/(?P<obj_id>\d+)/$', web.views.page),
     url(r'^thanks/(?P<obj_id>\d+)/$', web.views.thanks),
-
+    url(r'^list_all/$', web.views.list_all),
 )
